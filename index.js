@@ -10,10 +10,11 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 var db = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: ""
+    host: 'localhost',
+    database: 'smartbnb',
+    port: '3306',
+    user: 'root',
+    password: ''
 });
 
 db.connect(function (err) {
@@ -22,23 +23,10 @@ db.connect(function (err) {
 
 app.post('/', function (req, res) {
 
-    fs.readFile('data.json', 'utf8', function (err, data) {
-        if (err) {
-            console.log(err)
-        }
-        else {
-            const file = JSON.parse(data);
+    console.log(req.body)
 
-            file.records.push(req.body);
-
-            const json = JSON.stringify(file);
-
-            fs.writeFileSync('data.json', json, 'utf8');
-        }
-    });
-
-    db.query(`
-        INSERT INTO reservation (
+    db.query(
+        `INSERT INTO reservation (
             Guest_fk, 
             Listing_fk, 
             UserId, 
@@ -56,7 +44,6 @@ app.post('/', function (req, res) {
             Currency,
             PerNightPrice,
             BasePrice,
-            SecurityDeposite,
             Subtotal,
             Tax,
             GuestFee,
@@ -65,48 +52,75 @@ app.post('/', function (req, res) {
             BadReview,
             Cleaned,
             QualityChecked,
-            ETA,
-            ETD,
             CreatedAt,
             UpdatedAt,
             SentAt
         )
         VALUES (
-            ${r.data.guest.id},
-            ${r.data.listing.id},
-            ${r.data.user_id},
-            ${r.data.listing.name},
-            ${r.data.nights},
-            ${r.data.status},
-            ${r.data.guests},
-            ${r.data.adults},
-            ${r.data.children},
-            ${r.data.infants},
-            ${r.data.start_date},
-            ${r.data.checkin_time},
-            ${r.data.end_date},
-            ${r.data.checkout_time},
-            ${r.data.currency},
-            ${r.data.per_night_price},
-            ${r.data.base_price},
-            ${r.data.security_price},
-            ${r.data.subtotal},
-            ${r.data.tax_amount},
-            ${r.data.guest_fee},
-            ${r.data.host_service_fee},
-            ${r.data.payout_price},
-            "",
-            "",
-            "",
-            "",
-            "",
-            ${r.data.created_at},
-            ${r.data.updated_at},
-            ${r.data.sent_at}
-        )
-        `, (err, res, fields) => {
-
+            '${req.body.guest.id}',
+            '${req.body.listing.id}',
+            '${req.body.user_id}',
+            '${req.body.listing.name}',
+            '${req.body.nights}',
+            '${req.body.status}',
+            '${req.body.guests}',
+            '${req.body.adults}',
+            '${req.body.children}',
+            '${req.body.infants}',
+            ${db.escape(req.body.start_date)},
+            ${db.escape(req.body.checkin_time)},
+            ${db.escape(req.body.end_date)},
+            ${db.escape(req.body.checkout_time)},
+            '${req.body.currency}',
+            '${req.body.per_night_price}',
+            '${req.body.base_price}',
+            '${req.body.subtotal}',
+            '${req.body.tax_amount}',
+            '${req.body.guest_fee}',
+            '${req.body.host_service_fee}',
+            '${req.body.payout_price}',
+            '',
+            '',
+            '',
+            ${db.escape(req.body.created_at)},
+            ${db.escape(req.body.updated_at)},
+            ${db.escape(req.body.sent_at)}
+        )`, (err, res, fields) => {
+        if (err) throw err;
+        db.query(
+            `INSERT INTO guest (
+                    Reservation_fk, 
+                    FirstName, 
+                    LastName, 
+                    PictureURL, 
+                    Phone, 
+                    PlatformEmail, 
+                    Email, 
+                    City, 
+                    State, 
+                    AllowBack, 
+                    Comment,
+                    AddedOn
+                )
+                VALUES (
+                    '${fields.id}',
+                    '',
+                    '${req.body.guest.first_name}',
+                    '${req.body.guest.last_name}',
+                    '${req.body.guest.picture_url}',
+                    '${req.body.guest.phone}',
+                    '',
+                    '${req.body.guest.email}',
+                    '${req.body.guest.location}',
+                    '${req.body.guest.location}',
+                    '',
+                    '',
+                    ''
+                )`, (err, res, fields) => {
+            if (err) throw err;
+        })
     })
+
 
 })
 
