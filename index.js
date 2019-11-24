@@ -111,13 +111,13 @@ app.post('/', function (req, res) {
                                 )
                                 VALUES (
                                     '${req.body.code}',
-                                    '',
+                                    '', // **** Is this and extra line?
                                     '${req.body.guest.first_name}',
                                     '${req.body.guest.last_name}',
                                     '${req.body.guest.picture_url}',
                                     '${req.body.guest.phone}',
                                     '',
-                                    '${req.body.guest.email}',
+                                    '${req.body.guest.email}', // ***** Move this to platform email
                                     '${req.body.guest.location}',
                                     '',
                                     '',
