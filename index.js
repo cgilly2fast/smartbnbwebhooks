@@ -23,102 +23,112 @@ db.connect(function (err) {
 
 app.post('/', function (req, res) {
 
-    console.log(req.body)
+    var now = new Date()
 
-    db.query(
-        `INSERT INTO reservation (
-            Guest_fk, 
-            Listing_fk, 
-            UserId, 
-            ListingTitle, 
-            Nights, 
-            Status, 
-            Guests, 
-            Adults, 
-            Children,
-            Infants,
-            StartDate,
-            Checkintime,
-            EndDate,
-            CheckoutTime,
-            Currency,
-            PerNightPrice,
-            BasePrice,
-            Subtotal,
-            Tax,
-            GuestFee,
-            CleaningFee,
-            Payout,
-            BadReview,
-            Cleaned,
-            QualityChecked,
-            CreatedAt,
-            UpdatedAt,
-            SentAt
-        )
-        VALUES (
-            '${req.body.guest.id}',
-            '${req.body.listing.id}',
-            '${req.body.user_id}',
-            '${req.body.listing.name}',
-            '${req.body.nights}',
-            '${req.body.status}',
-            '${req.body.guests}',
-            '${req.body.adults}',
-            '${req.body.children}',
-            '${req.body.infants}',
-            ${db.escape(req.body.start_date)},
-            ${db.escape(req.body.checkin_time)},
-            ${db.escape(req.body.end_date)},
-            ${db.escape(req.body.checkout_time)},
-            '${req.body.currency}',
-            '${req.body.per_night_price}',
-            '${req.body.base_price}',
-            '${req.body.subtotal}',
-            '${req.body.tax_amount}',
-            '${req.body.guest_fee}',
-            '${req.body.host_service_fee}',
-            '${req.body.payout_price}',
-            '',
-            '',
-            '',
-            ${db.escape(req.body.created_at)},
-            ${db.escape(req.body.updated_at)},
-            ${db.escape(req.body.sent_at)}
-        )`, (err, res, fields) => {
-        if (err) throw err;
-        db.query(
-            `INSERT INTO guest (
-                    Reservation_fk, 
-                    FirstName, 
-                    LastName, 
-                    PictureURL, 
-                    Phone, 
-                    PlatformEmail, 
-                    Email, 
-                    City, 
-                    State, 
-                    AllowBack, 
-                    Comment,
-                    AddedOn
+
+    db.query(`SELECT Listing_fk FROM listingplatform WHERE id = ${req.body.listing.id}`, (err, result) => {
+        if (!err && result.length) {
+            db.query(
+                `INSERT INTO reservation (
+                    Guest_fk, 
+                    Listing_fk, 
+                    UserId, 
+                    ListingTitle, 
+                    Nights, 
+                    Status, 
+                    Guests, 
+                    Adults, 
+                    Children,
+                    Infants,
+                    StartDate,
+                    Checkintime,
+                    EndDate,
+                    CheckoutTime,
+                    Currency,
+                    PerNightPrice,
+                    BasePrice,
+                    Subtotal,
+                    Tax,
+                    GuestFee,
+                    CleaningFee,
+                    Payout,
+                    BadReview,
+                    Cleaned,
+                    QualityChecked,
+                    CreatedAt,
+                    UpdatedAt,
+                    SentAt
                 )
                 VALUES (
-                    '${fields.id}',
+                    '${req.body.guest.id}',
+                    '${result[0].Listing_fk}',
+                    '${req.body.user_id}',
+                    '${req.body.listing.name}',
+                    '${req.body.nights}',
+                    '${req.body.status}',
+                    '${req.body.guests}',
+                    '${req.body.adults}',
+                    '${req.body.children}',
+                    '${req.body.infants}',
+                    ${db.escape(req.body.start_date)},
+                    ${db.escape(req.body.checkin_time)},
+                    ${db.escape(req.body.end_date)},
+                    ${db.escape(req.body.checkout_time)},
+                    '${req.body.currency}',
+                    '${req.body.per_night_price}',
+                    '${req.body.base_price}',
+                    '${req.body.subtotal}',
+                    '${req.body.tax_amount}',
+                    '${req.body.guest_fee}',
+                    '${req.body.host_service_fee}',
+                    '${req.body.payout_price}',
                     '',
-                    '${req.body.guest.first_name}',
-                    '${req.body.guest.last_name}',
-                    '${req.body.guest.picture_url}',
-                    '${req.body.guest.phone}',
-                    '',
-                    '${req.body.guest.email}',
-                    '${req.body.guest.location}',
-                    '${req.body.guest.location}',
                     '',
                     '',
-                    ''
-                )`, (err, res, fields) => {
-            if (err) throw err;
-        })
+                    ${db.escape(req.body.created_at)},
+                    ${db.escape(req.body.updated_at)},
+                    ${db.escape(req.body.sent_at)}
+                )`, (err) => {
+                if (err) {
+                    throw err
+                }
+
+                db.query(`SELECT EXISTS(SELECT * FROM guest WHERE id = ${req.body.guest.id})`, (err, result) => {
+                    if (!err && !result.length) {
+                        db.query(
+                            `INSERT INTO guest (
+                                    Reservation_fk, 
+                                    FirstName, 
+                                    LastName, 
+                                    PictureURL, 
+                                    Phone, 
+                                    PlatformEmail, 
+                                    Email, 
+                                    Location, 
+                                    AllowBack, 
+                                    Comment,
+                                    AddedOn
+                                )
+                                VALUES (
+                                    '${req.body.code}',
+                                    '',
+                                    '${req.body.guest.first_name}',
+                                    '${req.body.guest.last_name}',
+                                    '${req.body.guest.picture_url}',
+                                    '${req.body.guest.phone}',
+                                    '',
+                                    '${req.body.guest.email}',
+                                    '${req.body.guest.location}',
+                                    '',
+                                    '',
+                                    '${now.toString()}'
+                                )`, (err) => {
+                            if (err) throw err;
+                        })
+                    }
+                })
+            })
+        }
     })
 
 
