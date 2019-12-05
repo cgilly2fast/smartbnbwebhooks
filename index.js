@@ -52,9 +52,6 @@ app.post('/', function (req, res) {
                     GuestFee,
                     CleaningFee,
                     Payout,
-                    BadReview,
-                    Cleaned,
-                    QualityChecked,
                     CreatedAt,
                     UpdatedAt,
                     SentAt
@@ -82,17 +79,11 @@ app.post('/', function (req, res) {
                     '${req.body.guest_fee}',
                     '${req.body.host_service_fee}',
                     '${req.body.payout_price}',
-                    '',
-                    '',
-                    '',
                     ${db.escape(req.body.created_at)},
                     ${db.escape(req.body.updated_at)},
                     ${db.escape(req.body.sent_at)}
                 )`, (err) => {
-                if (err) {
-                    throw err
-                }
-
+                if (err) throw err;
                 db.query(`SELECT EXISTS(SELECT * FROM guest WHERE id = ${req.body.guest.id})`, (err, result) => {
                     if (!err && !result.length) {
                         db.query(
@@ -104,9 +95,7 @@ app.post('/', function (req, res) {
                                     Phone, 
                                     PlatformEmail, 
                                     Email, 
-                                    Location, 
-                                    AllowBack, 
-                                    Comment,
+                                    Location,
                                     AddedOn
                                 )
                                 VALUES (
@@ -116,14 +105,43 @@ app.post('/', function (req, res) {
                                     '${req.body.guest.last_name}',
                                     '${req.body.guest.picture_url}',
                                     '${req.body.guest.phone}',
-                                    '',
+                                    '${req.body.guest.email}',
                                     '${req.body.guest.email}',
                                     '${req.body.guest.location}',
-                                    '',
-                                    '',
                                     '${now.toString()}'
                                 )`, (err) => {
                             if (err) throw err;
+                            db.query(`SELECT * FROM listing WHERE id = ${req.body.listing.id}`, (err, result) => {
+                                if (!err && result.length) {
+                                    db.query(`INSERT INTO task (
+                                        Worker_fk,
+                                        TaskType_fk,
+                                        Title,
+                                        Date,
+                                        Status,
+                                    )
+                                    VALUERS(
+                                        '${result[0].cleaner_fk}',
+                                        'Cleaning',
+                                        ${result[0].name} + ' - Cleaning',
+                                        '${db.escape(req.body.end_date)}',
+                                        'Pending',
+                                    )`)
+
+                                    db.query(`INSERT INTO task (
+                                        TaskType_fk,
+                                        Title,
+                                        Date,
+                                        Status,
+                                    )
+                                    VALUERS(
+                                        'Quality Control',
+                                        ${result[0].name} + ' - Cleaning',
+                                        '${db.escape(req.body.end_date)}',
+                                        'Pending',
+                                    )`)
+                                }
+                            })
                         })
                     }
                 })
