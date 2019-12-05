@@ -100,18 +100,12 @@ app.post('/', function (req, res) {
                                 )
                                 VALUES (
                                     '${req.body.code}',
-                                    '', // **** Is this and extra line?
                                     '${req.body.guest.first_name}',
                                     '${req.body.guest.last_name}',
                                     '${req.body.guest.picture_url}',
                                     '${req.body.guest.phone}',
-<<<<<<< HEAD
                                     '${req.body.guest.email}',
                                     '${req.body.guest.email}',
-=======
-                                    '',
-                                    '${req.body.guest.email}', // ***** Move this to platform email
->>>>>>> 79cc6413217ea9c9f2a19cd18e1d4ac119fc14ba
                                     '${req.body.guest.location}',
                                     '${now.toString()}'
                                 )`, (err) => {
