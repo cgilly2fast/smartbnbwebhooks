@@ -119,7 +119,7 @@ app.post('/', function (req, res) {
                                         Date,
                                         Status,
                                     )
-                                    VALUERS(
+                                    VALUES(
                                         '${result[0].cleaner_fk}',
                                         'Cleaning',
                                         ${result[0].name} + ' - Cleaning',
@@ -135,7 +135,7 @@ app.post('/', function (req, res) {
                                     )
                                     VALUERS(
                                         'Quality Control',
-                                        ${result[0].name} + ' - Cleaning',
+                                        ${result[0].name} + ' - Quality Control',
                                         '${db.escape(req.body.end_date)}',
                                         'Pending',
                                     )`)
