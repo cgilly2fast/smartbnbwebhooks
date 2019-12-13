@@ -10,9 +10,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 var db = mysql.createConnection({
-    host: 'localhost',
-    database: 'smartbnb',
-    port: '3306',
+    host: '35.232.175.118',
+    database: 'mgmt-system',
+    //port: '3306',
     user: 'root',
     password: ''
 });
